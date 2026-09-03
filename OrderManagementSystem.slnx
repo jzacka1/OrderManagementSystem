@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+  </Folder>
+  <Project Path="IntegrationTests/OrderManagementSystem.IntegrationTests.csproj" Id="1ee7c94d-3644-43bc-9a6e-d36030bb4371" />
+  <Project Path="OrderManagementSystem.Application/OrderManagementSystem.Application.csproj" Id="9b67aae4-351d-4ef1-bbaa-0caf682f6dda" />
+  <Project Path="OrderManagementSystem.Domain/OrderManagementSystem.Domain.csproj" Id="a375e457-8201-4c91-bf96-3ba97214e726" />
+  <Project Path="OrderManagementSystem.Infrastructure/OrderManagementSystem.Infrastructure.csproj" Id="5bbedf88-0c5d-42d5-b466-cac0d48b637a" />
+  <Project Path="OrderManagementSystem.UnitTests/OrderManagementSystem.UnitTests.csproj" Id="61380164-c36a-4c53-bae8-ee8fa685155f" />
+  <Project Path="OrderManagementSystem/OrderManagementSystem.API.csproj" />
+</Solution>
