@@ -91,20 +91,21 @@ namespace OrderManagementSystem.IntegrationTests
         }
 
         [Fact]
-        public async Task Get_Orders_Returns_Success_Status_Code()
+        public async Task Get_Orders_Returns_Ok_With_Order_List()
         {
-            //var response = await _client.GetAsync(
-            //    "/api/Orders");
-
-            //response.EnsureSuccessStatusCode();
-
+            // Act
             var response = await _client.GetAsync("/api/Orders");
 
-            var content = await response.Content.ReadAsStringAsync();
+            // Assert
+            Assert.Equal(
+                HttpStatusCode.OK,
+                response.StatusCode);
 
-            Assert.True(
-                response.IsSuccessStatusCode,
-                $"Status: {response.StatusCode}\nResponse: {content}");
+            var orders =
+                await response.Content.ReadFromJsonAsync<List<OrderResponse>>(
+                    _jsonOptions);
+
+            Assert.NotNull(orders);
         }
 
         [Fact]
@@ -674,7 +675,151 @@ namespace OrderManagementSystem.IntegrationTests
                 problemDetails.Errors["Items[0].UnitPrice"],
                 message => message.Contains(
                     "The field UnitPrice must be between 0.01 and"));
-                }
-       
+         }
+
+        [Fact]
+        public async Task Process_Nonexistent_Order_Returns_NotFound()
+        {
+            // Arrange
+            var nonexistentOrderId = Guid.NewGuid();
+
+            // Act
+            var response = await _client.PostAsync(
+                $"/api/Orders/{nonexistentOrderId}/process",
+                null);
+
+            // Assert
+            Assert.Equal(
+                HttpStatusCode.NotFound,
+                response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Complete_Nonexistent_Order_Returns_NotFound()
+        {
+            // Arrange
+            var nonexistentOrderId = Guid.NewGuid();
+
+            // Act
+            var response = await _client.PostAsync(
+                $"/api/Orders/{nonexistentOrderId}/complete",
+                null);
+
+            // Assert
+            Assert.Equal(
+                HttpStatusCode.NotFound,
+                response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Cancel_Nonexistent_Order_Returns_NotFound()
+        {
+            // Arrange
+            var nonexistentOrderId = Guid.NewGuid();
+
+            // Act
+            var response = await _client.PostAsync(
+                $"/api/Orders/{nonexistentOrderId}/cancel",
+                null);
+
+            // Assert
+            Assert.Equal(
+                HttpStatusCode.NotFound,
+                response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Complete_Pending_Order_Returns_BadRequest()
+        {
+            // Arrange
+            var order = await CreateOrderAsync();
+
+            // Act
+            var response = await _client.PostAsync(
+                $"/api/Orders/{order.Id}/complete",
+                null);
+
+            // Assert
+            Assert.Equal(
+                HttpStatusCode.BadRequest,
+                response.StatusCode);
+
+            var problemDetails =
+                await response.Content.ReadFromJsonAsync<ProblemDetails>(
+                    _jsonOptions);
+
+            Assert.NotNull(problemDetails);
+            Assert.Equal(
+                "Only processing orders can be completed.",
+                problemDetails.Detail);
+        }
+
+        [Fact]
+        public async Task Process_Cancelled_Order_Returns_BadRequest()
+        {
+            // Arrange
+            var order = await CreateOrderAsync();
+
+            var cancelResponse = await _client.PostAsync(
+                $"/api/Orders/{order.Id}/cancel",
+                null);
+
+            Assert.Equal(
+                HttpStatusCode.NoContent,
+                cancelResponse.StatusCode);
+
+            // Act
+            var response = await _client.PostAsync(
+                $"/api/Orders/{order.Id}/process",
+                null);
+
+            // Assert
+            Assert.Equal(
+                HttpStatusCode.BadRequest,
+                response.StatusCode);
+
+            var problemDetails =
+                await response.Content.ReadFromJsonAsync<ProblemDetails>(
+                    _jsonOptions);
+
+            Assert.NotNull(problemDetails);
+            Assert.Equal(
+                "Only pending orders can be processed.",
+                problemDetails.Detail);
+        }
+
+        [Fact]
+        public async Task Complete_Cancelled_Order_Returns_BadRequest()
+        {
+            // Arrange
+            var order = await CreateOrderAsync();
+
+            var cancelResponse = await _client.PostAsync(
+                $"/api/Orders/{order.Id}/cancel",
+                null);
+
+            Assert.Equal(
+                HttpStatusCode.NoContent,
+                cancelResponse.StatusCode);
+
+            // Act
+            var response = await _client.PostAsync(
+                $"/api/Orders/{order.Id}/complete",
+                null);
+
+            // Assert
+            Assert.Equal(
+                HttpStatusCode.BadRequest,
+                response.StatusCode);
+
+            var problemDetails =
+                await response.Content.ReadFromJsonAsync<ProblemDetails>(
+                    _jsonOptions);
+
+            Assert.NotNull(problemDetails);
+            Assert.Equal(
+                "Only processing orders can be completed.",
+                problemDetails.Detail);
+        }
     }
 }
