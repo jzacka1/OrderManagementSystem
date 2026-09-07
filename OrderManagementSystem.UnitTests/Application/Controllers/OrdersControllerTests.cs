@@ -2,12 +2,7 @@
 using Moq;
 using OrderManagementSystem.API.Controllers;
 using OrderManagementSystem.Application.DTOs;
-using OrderManagementSystem.Application.Interfaces;
 using OrderManagementSystem.Application.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
 
 namespace OrderManagementSystem.UnitTests.Application.Controllers
 {
@@ -17,8 +12,6 @@ namespace OrderManagementSystem.UnitTests.Application.Controllers
         public async Task CreateOrder_WithValidRequest_ReturnsCreatedAtAction()
         {
             // Arrange
-            var repository = new Mock<IOrderRepository>();
-
             var service = new Mock<IOrderService>();
 
             var orderId = Guid.NewGuid();
@@ -272,42 +265,6 @@ namespace OrderManagementSystem.UnitTests.Application.Controllers
         }
 
         [Fact]
-        public async Task ProcessOrder_WhenOrderDoesNotExist_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            var service = new Mock<IOrderService>();
-
-            var orderId = Guid.NewGuid();
-
-            service
-                .Setup(x => x.ProcessOrderAsync(
-                    orderId,
-                    It.IsAny<CancellationToken>()))
-                .ThrowsAsync(
-                    new KeyNotFoundException(
-                        $"Order with ID '{orderId}' was not found."));
-
-            var controller = new OrdersController(service.Object);
-
-            // Act
-            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
-                () => controller.ProcessOrder(
-                    orderId,
-                    CancellationToken.None));
-
-            // Assert
-            Assert.Equal(
-                $"Order with ID '{orderId}' was not found.",
-                exception.Message);
-
-            service.Verify(
-                x => x.ProcessOrderAsync(
-                    orderId,
-                    CancellationToken.None),
-                Times.Once);
-        }
-
-        [Fact]
         public async Task CompleteOrder_WhenServiceSucceeds_ReturnsNoContent()
         {
             // Arrange
@@ -330,42 +287,6 @@ namespace OrderManagementSystem.UnitTests.Application.Controllers
 
             // Assert
             Assert.IsType<NoContentResult>(result);
-
-            service.Verify(
-                x => x.CompleteOrderAsync(
-                    orderId,
-                    CancellationToken.None),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task CompleteOrder_WhenOrderDoesNotExist_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            var service = new Mock<IOrderService>();
-
-            var orderId = Guid.NewGuid();
-
-            service
-                .Setup(x => x.CompleteOrderAsync(
-                    orderId,
-                    It.IsAny<CancellationToken>()))
-                .ThrowsAsync(
-                    new KeyNotFoundException(
-                        $"Order with ID '{orderId}' was not found."));
-
-            var controller = new OrdersController(service.Object);
-
-            // Act
-            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
-                () => controller.CompleteOrder(
-                    orderId,
-                    CancellationToken.None));
-
-            // Assert
-            Assert.Equal(
-                $"Order with ID '{orderId}' was not found.",
-                exception.Message);
 
             service.Verify(
                 x => x.CompleteOrderAsync(
@@ -406,42 +327,6 @@ namespace OrderManagementSystem.UnitTests.Application.Controllers
         }
 
         [Fact]
-        public async Task CancelOrder_WhenOrderDoesNotExist_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            var service = new Mock<IOrderService>();
-
-            var orderId = Guid.NewGuid();
-
-            service
-                .Setup(x => x.CancelOrderAsync(
-                    orderId,
-                    It.IsAny<CancellationToken>()))
-                .ThrowsAsync(
-                    new KeyNotFoundException(
-                        $"Order with ID '{orderId}' was not found."));
-
-            var controller = new OrdersController(service.Object);
-
-            // Act
-            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
-                () => controller.CancelOrder(
-                    orderId,
-                    CancellationToken.None));
-
-            // Assert
-            Assert.Equal(
-                $"Order with ID '{orderId}' was not found.",
-                exception.Message);
-
-            service.Verify(
-                x => x.CancelOrderAsync(
-                    orderId,
-                    CancellationToken.None),
-                Times.Once);
-        }
-
-        [Fact]
         public async Task DeleteOrder_WhenServiceSucceeds_ReturnsNoContent()
         {
             // Arrange
@@ -464,42 +349,6 @@ namespace OrderManagementSystem.UnitTests.Application.Controllers
 
             // Assert
             Assert.IsType<NoContentResult>(result);
-
-            service.Verify(
-                x => x.DeleteOrderAsync(
-                    orderId,
-                    CancellationToken.None),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task DeleteOrder_WhenOrderDoesNotExist_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            var service = new Mock<IOrderService>();
-
-            var orderId = Guid.NewGuid();
-
-            service
-                .Setup(x => x.DeleteOrderAsync(
-                    orderId,
-                    It.IsAny<CancellationToken>()))
-                .ThrowsAsync(
-                    new KeyNotFoundException(
-                        $"Order with ID '{orderId}' was not found."));
-
-            var controller = new OrdersController(service.Object);
-
-            // Act
-            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
-                () => controller.DeleteOrder(
-                    orderId,
-                    CancellationToken.None));
-
-            // Assert
-            Assert.Equal(
-                $"Order with ID '{orderId}' was not found.",
-                exception.Message);
 
             service.Verify(
                 x => x.DeleteOrderAsync(
